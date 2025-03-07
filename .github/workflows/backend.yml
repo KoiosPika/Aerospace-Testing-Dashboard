@@ -63,19 +63,19 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
-            echo "AWS_REGION: $AWS_REGION"
-            echo "Docker Image: $DOCKER_IMAGE"
-
             export AWS_REGION=us-east-2
             export DOCKER_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-2.amazonaws.com/aerospace-backend"
 
+            # Login to ECR
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $DOCKER_IMAGE
+            
+            # Pull latest image
             docker pull $DOCKER_IMAGE:latest
 
-            CONTAINER_ID=$(docker ps -q --filter "name=aerospace-backend")
-            if [ ! -z "$CONTAINER_ID" ]; then
-                docker stop aerospace-backend
-                docker rm aerospace-backend
+            # Stop and remove existing container if it exists
+            if [ "$(docker ps -q -f name=aerospace-backend)" ]; then
+              docker stop aerospace-backend
+              docker rm aerospace-backend
             fi
 
             docker run -d --name aerospace-backend -p 8000:8000 $DOCKER_IMAGE:latest
