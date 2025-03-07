@@ -40,7 +40,8 @@ jobs:
 
       - name: Create Firebase Credentials File
         run: |
-          echo '${{ secrets.FIREBASE_CREDENTIALS }}' | jq '.' > firebase_credentials.json
+          echo '${{ secrets.FIREBASE_CREDENTIALS }}' | tr -d '\r' > firebase_credentials.json
+          cat firebase_credentials.json  # Debugging: Check if file is written correctly
           echo "FIREBASE_CREDENTIALS=/app/firebase_credentials.json" >> .env
 
       - name: Login to Amazon ECR
