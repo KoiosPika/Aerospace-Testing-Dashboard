@@ -39,16 +39,23 @@ jobs:
           echo "FIREBASE_CREDENTIALS=${{ secrets.FIREBASE_CREDENTIALS }}" >> .env
 
       - name: Login to Amazon ECR
-        run: |
+        script: |
+          export PATH=$PATH:/usr/local/bin
+          if ! command -v aws &> /dev/null; then
+            echo "AWS CLI not found. Installing..."
+            sudo apt update && sudo apt install awscli -y
+          fi
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+          docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/aerospace-backend:latest
 
       - name: Build and Push Docker Image
         run: |
           docker build -t $ECR_REPOSITORY .
           docker tag $ECR_REPOSITORY:latest $DOCKER_IMAGE:latest
           docker push $DOCKER_IMAGE:latest
+
       - name: Debug AWS Account ID
-        run: echo "AWS Account ID ${{ secrets.AWS_ACCOUNT_ID }}"
+        run: echo "AWS Account ID: ${{ secrets.AWS_ACCOUNT_ID }}"
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
