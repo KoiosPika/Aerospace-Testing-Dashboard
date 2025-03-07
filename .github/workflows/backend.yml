@@ -59,6 +59,15 @@ jobs:
             cat firebase_credentials.json
           fi
 
+      - name: Copy Environment Files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ env.EC2_INSTANCE_IP }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          source: ".env,firebase_credentials.json"
+          target: "/home/ubuntu/"
+
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
@@ -95,4 +104,18 @@ jobs:
             # Remove orphaned containers
             docker container prune -f
 
-            docker run -d --name aerospace-backend -p 8000:8000 $DOCKER_IMAGE:latest
+            if [ ! -f "/home/ubuntu/.env" ]; then
+              echo "ERROR: .env file is missing on EC2!"
+              exit 1
+            fi
+
+            if [ ! -f "/home/ubuntu/firebase_credentials.json" ]; then
+              echo "ERROR: firebase_credentials.json file is missing on EC2!"
+              exit 1
+            fi
+
+            # Run the container with environment files
+            docker run -d --name aerospace-backend \
+              --env-file /home/ubuntu/.env \
+              -v /home/ubuntu/firebase_credentials.json:/app/firebase_credentials.json \
+              -p 8000:8000 $DOCKER_IMAGE:latest
