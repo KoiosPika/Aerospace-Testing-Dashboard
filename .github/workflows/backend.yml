@@ -72,7 +72,7 @@ jobs:
             # Pull latest image
             docker pull $DOCKER_IMAGE:latest
 
-            # Force stop and remove any existing aerospace-backend container
+            # Force stop and remove any existing aerospace-backend container 
             docker stop aerospace-backend || true
             docker rm aerospace-backend || true
 
