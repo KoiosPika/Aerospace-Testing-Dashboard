@@ -33,6 +33,9 @@ jobs:
           audience: sts.amazonaws.com
           role-session-name: GitHubActionsSession
 
+      - name: Debug Firebase Credentials
+        run: echo '${{ secrets.FIREBASE_CREDENTIALS }}' | tr -d '\r'
+
       - name: Create .env file
         run: |
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
@@ -40,8 +43,8 @@ jobs:
 
       - name: Create Firebase Credentials File
         run: |
-          echo '${{ secrets.FIREBASE_CREDENTIALS }}' | tr -d '\r' > firebase_credentials.json
-          cat firebase_credentials.json  # Debugging: Check if file is written correctly
+          echo '${{ secrets.FIREBASE_CREDENTIALS }}' | jq '.' > firebase_credentials.json
+          cat firebase_credentials.json
           echo "FIREBASE_CREDENTIALS=/app/firebase_credentials.json" >> .env
 
       - name: Login to Amazon ECR

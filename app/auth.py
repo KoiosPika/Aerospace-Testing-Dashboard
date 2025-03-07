@@ -9,13 +9,10 @@ load_dotenv()
 
 firebase_credentials_path = os.getenv("FIREBASE_CREDENTIALS")
 
-if not firebase_credentials_path or not os.path.exists(firebase_credentials_path):
-    raise ValueError("ERROR: FIREBASE_CREDENTIALS file is missing!")
-
 with open(firebase_credentials_path, "r") as file:
     try:
         credentials_json = json.load(file)
-        cred = credentials.Certificate(firebase_credentials_path)
+        cred = credentials.Certificate(credentials_json)
         firebase_app = firebase_admin.initialize_app(cred)
     except json.JSONDecodeError as e:
         raise ValueError(f"ERROR: Invalid Firebase credentials JSON → {e}")
