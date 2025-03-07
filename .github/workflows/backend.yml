@@ -72,10 +72,11 @@ jobs:
             # Pull latest image
             docker pull $DOCKER_IMAGE:latest
 
-            # Stop and remove existing container if it exists
-            if [ "$(docker ps -q -f name=aerospace-backend)" ]; then
-              docker stop aerospace-backend
-              docker rm aerospace-backend
-            fi
+            # Force stop and remove any existing aerospace-backend container
+            docker stop aerospace-backend || true
+            docker rm aerospace-backend || true
+
+            # Remove orphaned containers
+            docker container prune -f
 
             docker run -d --name aerospace-backend -p 8000:8000 $DOCKER_IMAGE:latest
