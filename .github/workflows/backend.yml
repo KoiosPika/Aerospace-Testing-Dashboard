@@ -1,0 +1,61 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-2
+  ECR_REPOSITORY: aerospace-backend
+  EC2_INSTANCE_IP: 3.12.149.25
+  SSH_USER: "ubuntu"
+  AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+  DOCKER_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-2.amazonaws.com/aerospace-backend"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubActions-Deploy-Backend
+          aws-region: us-east-2
+
+      - name: Create .env file
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "FIREBASE_CREDENTIALS=${{ secrets.FIREBASE_CREDENTIALS }}" >> .env
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t $ECR_REPOSITORY .
+          docker tag $ECR_REPOSITORY:latest $DOCKER_IMAGE:latest
+          docker push $DOCKER_IMAGE:latest
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.EC2_INSTANCE_IP }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $DOCKER_IMAGE
+            docker pull $DOCKER_IMAGE:latest
+
+            CONTAINER_ID=$(docker ps -q --filter "name=aerospace-backend")
+            if [ ! -z "$CONTAINER_ID" ]; then
+                docker stop aerospace-backend
+                docker rm aerospace-backend
+            fi
+
+            docker run -d --name aerospace-backend -p 8000:8000 $DOCKER_IMAGE:latest

@@ -1,0 +1,9 @@
+venv/
+
+__pycache__/
+
+.env
+
+aerospace-testing-dashboard-firebase-adminsdk-fbsvc-7dab17cdd8.json
+
+firebase-adminsdk.json

@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+psycopg2
+python-dotenv
+pydantic
+firebase-admin
+WeasyPrint
+jinja2
+boto3
+reportlab
