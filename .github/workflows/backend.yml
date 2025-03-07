@@ -38,14 +38,26 @@ jobs:
 
       - name: Create .env file
         run: |
+          if [ -f ".env" ]; then
+            rm .env
+          fi
+          
+          touch .env
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-          echo "FIREBASE_CREDENTIALS=${{ secrets.FIREBASE_CREDENTIALS }}" >> .env
+          echo "FIREBASE_CREDENTIALS="/app/firebase_credentials.json" >> .env
+
+          ls -la
+          cat .env
 
       - name: Create Firebase Credentials File
         run: |
-          echo '${{ secrets.FIREBASE_CREDENTIALS }}' | jq '.' > firebase_credentials.json
-          cat firebase_credentials.json
-          echo "FIREBASE_CREDENTIALS=/app/firebase_credentials.json" >> .env
+          if [ -f "firebase_credentials.json" ]; then
+            echo "Firebase credentials file already exists. Skipping creation."
+          else
+            echo "Creating Firebase credentials file..."
+            echo '${{ secrets.FIREBASE_CREDENTIALS }}' | jq '.' > firebase_credentials.json
+            cat firebase_credentials.json
+          fi
 
       - name: Login to Amazon ECR
         run: |
