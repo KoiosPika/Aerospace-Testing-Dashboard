@@ -44,7 +44,7 @@ jobs:
           
           touch .env
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-          echo "FIREBASE_CREDENTIALS="/app/firebase_credentials.json" >> .env
+          echo "FIREBASE_CREDENTIALS=/app/firebase_credentials.json" >> .env
 
           ls -la
           cat .env
