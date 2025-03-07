@@ -39,14 +39,8 @@ jobs:
           echo "FIREBASE_CREDENTIALS=${{ secrets.FIREBASE_CREDENTIALS }}" >> .env
 
       - name: Login to Amazon ECR
-        script: |
-          export PATH=$PATH:/usr/local/bin
-          if ! command -v aws &> /dev/null; then
-            echo "AWS CLI not found. Installing..."
-            sudo apt update && sudo apt install awscli -y
-          fi
+        run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-          docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/aerospace-backend:latest
 
       - name: Build and Push Docker Image
         run: |
@@ -64,6 +58,12 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
+            echo "AWS_REGION: $AWS_REGION"
+            echo "Docker Image: $DOCKER_IMAGE"
+
+            export AWS_REGION=us-east-2
+            export DOCKER_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-2.amazonaws.com/aerospace-backend"
+
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $DOCKER_IMAGE
             docker pull $DOCKER_IMAGE:latest
 
