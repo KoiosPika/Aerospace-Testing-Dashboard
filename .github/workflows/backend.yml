@@ -33,7 +33,7 @@ jobs:
           audience: sts.amazonaws.com
           role-session-name: GitHubActionsSession
 
-      - name: Debug Firebase Credentials
+      - name: Debug Firebase Credentials 
         run: echo '${{ secrets.FIREBASE_CREDENTIALS }}' | tr -d '\r'
 
       - name: Create .env file
