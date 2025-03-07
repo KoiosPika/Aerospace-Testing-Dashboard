@@ -12,7 +12,7 @@ permissions:
 env:
   AWS_REGION: us-east-2
   ECR_REPOSITORY: aerospace-backend
-  EC2_INSTANCE_IP: 3.12.149.25
+  EC2_INSTANCE_IP: 3.22.79.0
   SSH_USER: "ubuntu"
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   DOCKER_IMAGE: "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-2.amazonaws.com/aerospace-backend"
