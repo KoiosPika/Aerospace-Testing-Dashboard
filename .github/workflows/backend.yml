@@ -55,7 +55,7 @@ jobs:
           docker push $DOCKER_IMAGE:latest
 
       - name: Debug AWS Account ID
-        run: echo "AWS Account ID: ${{ secrets.AWS_ACCOUNT_ID }}"
+        run: echo "AWS Account ID ${{ secrets.AWS_ACCOUNT_ID }}"
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
