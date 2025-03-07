@@ -38,6 +38,11 @@ jobs:
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
           echo "FIREBASE_CREDENTIALS=${{ secrets.FIREBASE_CREDENTIALS }}" >> .env
 
+      - name: Create Firebase Credentials File
+        run: |
+          echo '${{ secrets.FIREBASE_ADMIN }}' > firebase_credentials.json
+          echo "FIREBASE_CREDENTIALS=/app/firebase_credentials.json" >> .env
+
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
