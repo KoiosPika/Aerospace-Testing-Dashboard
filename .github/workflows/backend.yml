@@ -103,18 +103,7 @@ jobs:
 
             # Remove orphaned containers
             docker container prune -f
-
-            if [ ! -f "/home/ubuntu/.env" ]; then
-              echo "ERROR: .env file is missing on EC2!"
-              exit 1
-            fi
-
-            if [ ! -f "/home/ubuntu/firebase_credentials.json" ]; then
-              echo "ERROR: firebase_credentials.json file is missing on EC2!"
-              exit 1
-            fi
-
-            # Run the container with environment files
+            
             docker run -d --name aerospace-backend \
               --env-file /home/ubuntu/.env \
               -v /home/ubuntu/firebase_credentials.json:/app/firebase_credentials.json \

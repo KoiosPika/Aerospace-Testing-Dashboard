@@ -10,4 +10,4 @@ router = APIRouter(prefix="/logs", tags=["Audit Logs"])
 @router.get("/")
 async def get_audit_logs(db: AsyncSession = Depends(get_db), user=Depends(lambda: check_role("admin"))):
     result = await db.execute(select(AuditLog).order_by(AuditLog.timestamp.desc()))
-    return result.scalars().all()
+    return result.scalars().all() 
